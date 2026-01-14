@@ -36,6 +36,13 @@ export const AlarmThumbnailItem: React.FC<AlarmThumbnailItemProps> = ({ alarm, o
       <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[10px] font-mono text-gray-300 backdrop-blur-sm">
         {alarm.timestamp}
       </div>
+
+      {/* Elevator Name Overlay (Top Left) */}
+      {alarm.elevatorName && (
+        <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 rounded text-[10px] font-medium text-white backdrop-blur-sm max-w-[80%] truncate">
+          {alarm.elevatorName}
+        </div>
+      )}
     </div>
   );
 };

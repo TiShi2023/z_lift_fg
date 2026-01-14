@@ -2,7 +2,7 @@
 
 import { Alarm } from "@/types/alarm";
 
-const API_URL = process.env.API_BASE_URL;
+const API_BASE_URL = process.env.API_BASE_URL;
 
 interface FetchAlarmsResponse {
   list: any[]; // We'll refine this once we know the exact shape
@@ -10,12 +10,12 @@ interface FetchAlarmsResponse {
 }
 
 export async function fetchAlarms(pageNum: number = 1, pageSize: number = 10): Promise<{ alarms: Alarm[], total: number }> {
-  if (!API_URL) {
+  if (!API_BASE_URL) {
     throw new Error("API_BASE_URL is not defined");
   }
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(`${API_BASE_URL}/local/v1/findAlarmList`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

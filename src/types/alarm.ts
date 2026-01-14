@@ -6,4 +6,5 @@ export interface Alarm {
   videoUrl: string;
   timestamp: string;
   location?: string;
+  elevatorName?: string;
 }

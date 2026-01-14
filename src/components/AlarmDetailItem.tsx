@@ -64,6 +64,12 @@ export const AlarmDetailItem: React.FC<AlarmDetailItemProps> = ({ alarm }) => {
                 <Hash className="w-4 h-4 text-gray-500" />
                 {alarm.registrationNumber}
               </h3>
+              {alarm.elevatorName && (
+                <div className="text-sm text-gray-400 mt-1 font-medium flex items-center gap-2">
+                   <MapPin className="w-3 h-3" />
+                   {alarm.elevatorName}
+                </div>
+              )}
            </div>
         </div>
 

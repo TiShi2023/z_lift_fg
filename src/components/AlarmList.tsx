@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Alarm } from "@/types/alarm";
 import { AlarmDetailItem } from "./AlarmDetailItem";
 import { AlarmThumbnailItem } from "./AlarmThumbnailItem";
@@ -8,6 +8,7 @@ import { VideoModal } from "./VideoModal";
 import { LayoutList, LayoutGrid, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchAlarms } from "@/app/actions/getAlarms";
+import { fetchElevatorMappings } from "@/app/actions/getElevators";
 
 interface AlarmListProps {
   initialAlarms: Alarm[];
@@ -18,13 +19,31 @@ type ViewMode = 'detail' | 'thumbnail';
 export const AlarmList: React.FC<AlarmListProps> = ({ initialAlarms }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('detail');
   const [alarms, setAlarms] = useState<Alarm[]>(initialAlarms);
+  const [elevatorMap, setElevatorMap] = useState<Record<string, string>>({});
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  const loadMore = async () => {
+  // Fetch elevator mappings on mount
+  useEffect(() => {
+    const loadMappings = async () => {
+      const mapping = await fetchElevatorMappings();
+      setElevatorMap(mapping);
+      
+      // Update initial alarms if needed
+      setAlarms(prevAlarms => 
+        prevAlarms.map(alarm => ({
+          ...alarm,
+          elevatorName: mapping[alarm.registrationNumber] || alarm.elevatorName
+        }))
+      );
+    };
+    loadMappings();
+  }, []);
+
+  const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
     setLoading(true);
     try {
@@ -34,7 +53,13 @@ export const AlarmList: React.FC<AlarmListProps> = ({ initialAlarms }) => {
       if (newAlarms.length === 0) {
         setHasMore(false);
       } else {
-        setAlarms(prev => [...prev, ...newAlarms]);
+        // Enrich new alarms with elevator names from map
+        const enrichedAlarms = newAlarms.map(alarm => ({
+          ...alarm,
+          elevatorName: elevatorMap[alarm.registrationNumber]
+        }));
+        
+        setAlarms(prev => [...prev, ...enrichedAlarms]);
         setPage(nextPage);
         if (alarms.length + newAlarms.length >= total) {
           setHasMore(false);
@@ -45,7 +70,7 @@ export const AlarmList: React.FC<AlarmListProps> = ({ initialAlarms }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, hasMore, page, alarms.length, elevatorMap]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -62,7 +87,7 @@ export const AlarmList: React.FC<AlarmListProps> = ({ initialAlarms }) => {
     }
 
     return () => observer.disconnect();
-  }, [hasMore, loading]);
+  }, [loadMore, hasMore, loading]);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-6">
