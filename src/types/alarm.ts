@@ -7,4 +7,5 @@ export interface Alarm {
   timestamp: string;
   location?: string;
   elevatorName?: string;
+  isSend: number;
 }

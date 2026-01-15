@@ -25,6 +25,12 @@ export const AlarmThumbnailItem: React.FC<AlarmThumbnailItemProps> = ({ alarm, o
       {/* Overlay Gradient */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
 
+      {/* Status Dot */}
+      <div className={cn(
+        "absolute top-2 right-2 w-2.5 h-2.5 rounded-full z-10 border border-black/20 shadow-sm",
+        alarm.isSend === 1 ? "bg-green-500" : "bg-red-500"
+      )} />
+
       {/* Play Icon */}
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
         <div className="bg-black/50 p-2 rounded-full backdrop-blur-sm">

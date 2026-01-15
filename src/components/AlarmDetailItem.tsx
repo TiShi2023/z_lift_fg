@@ -27,7 +27,13 @@ export const AlarmDetailItem: React.FC<AlarmDetailItemProps> = ({ alarm }) => {
   };
 
   return (
-    <div ref={containerRef} className="bg-[#111] border border-gray-800 rounded-lg overflow-hidden flex flex-col shadow-lg h-full">
+    <div ref={containerRef} className="relative bg-[#111] border border-gray-800 rounded-lg overflow-hidden flex flex-col shadow-lg h-full">
+      {/* Status Dot */}
+      <div className={cn(
+        "absolute top-3 right-3 w-3 h-3 rounded-full z-10 border border-black/20 shadow-sm",
+        alarm.isSend === 1 ? "bg-green-500" : "bg-red-500"
+      )} />
+
       {/* Video Section */}
       <div className="relative w-full aspect-video bg-black group cursor-pointer" onClick={togglePlay}>
         <video

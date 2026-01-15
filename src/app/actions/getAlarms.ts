@@ -57,6 +57,7 @@ export async function fetchAlarms(pageNum: number = 1, pageSize: number = 10): P
       previewImage: item.photo || "https://images.unsplash.com/photo-1557597774-9d273605dfa9?q=80&w=1000&auto=format&fit=crop", 
       videoUrl: item.video || "",
       timestamp: item.createTime || new Date().toLocaleString(),
+      isSend: item.isSend ?? 0,
       // location is not in the new API response, leaving undefined or removing from interface later
       location: undefined, 
     }));
