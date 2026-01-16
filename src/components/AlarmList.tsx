@@ -22,6 +22,7 @@ export const AlarmList: React.FC<AlarmListProps> = ({ initialAlarms }) => {
   const [elevatorMap, setElevatorMap] = useState<Record<string, string>>({});
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -71,6 +72,38 @@ export const AlarmList: React.FC<AlarmListProps> = ({ initialAlarms }) => {
       setLoading(false);
     }
   }, [loading, hasMore, page, alarms.length, elevatorMap]);
+
+  const refreshAlarms = useCallback(async () => {
+    if (loading || refreshing) return;
+    setRefreshing(true);
+    try {
+      const { alarms: newAlarms, total } = await fetchAlarms(1, 10);
+      
+      const enrichedAlarms = newAlarms.map(alarm => ({
+        ...alarm,
+        elevatorName: elevatorMap[alarm.registrationNumber] || alarm.elevatorName
+      }));
+
+      setAlarms(enrichedAlarms);
+      setPage(1);
+      setHasMore(newAlarms.length < total);
+    } catch (error) {
+      console.error("Failed to refresh alarms", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loading, refreshing, elevatorMap]);
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (window.scrollY === 0 && e.deltaY < -50 && !refreshing && !loading) {
+        refreshAlarms();
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel);
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, [refreshAlarms, refreshing, loading]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -125,6 +158,12 @@ export const AlarmList: React.FC<AlarmListProps> = ({ initialAlarms }) => {
 
       {/* Content */}
       <div className="min-h-screen pb-20">
+        {refreshing && (
+          <div className="w-full py-4 flex items-center justify-center text-blue-400 bg-blue-500/10 mb-4 rounded-lg animate-in slide-in-from-top-2 fade-in duration-300">
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            <span className="text-sm font-medium">Refreshing alarms...</span>
+          </div>
+        )}
         {alarms.length === 0 && !loading ? (
            <div className="text-center text-gray-500 mt-20">No alarms found.</div>
         ) : (
