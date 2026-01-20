@@ -9,7 +9,7 @@ interface FetchAlarmsResponse {
   total: number;
 }
 
-export async function fetchAlarms(pageNum: number = 1, pageSize: number = 10): Promise<{ alarms: Alarm[], total: number }> {
+export async function fetchAlarms(pageNum: number = 1, pageSize: number = 10, registerCode?: string): Promise<{ alarms: Alarm[], total: number }> {
   if (!API_BASE_URL) {
     throw new Error("API_BASE_URL is not defined");
   }
@@ -24,6 +24,7 @@ export async function fetchAlarms(pageNum: number = 1, pageSize: number = 10): P
         alarmCode: "200",
         pageNum,
         pageSize,
+        registerCode,
       }),
       cache: "no-store",
     });
@@ -55,7 +56,7 @@ export async function fetchAlarms(pageNum: number = 1, pageSize: number = 10): P
       registrationNumber: item.registerCode || "Unknown",
       alarmType: item.faultName || "Unknown Type",
       previewImage: item.photo || "https://images.unsplash.com/photo-1557597774-9d273605dfa9?q=80&w=1000&auto=format&fit=crop", 
-      videoUrl: item.video || "",
+      videoUrl: item.video || null,
       timestamp: item.createTime || new Date().toLocaleString(),
       isSend: item.isSend ?? 0,
       // location is not in the new API response, leaving undefined or removing from interface later

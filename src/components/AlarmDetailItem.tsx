@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 
 interface AlarmDetailItemProps {
   alarm: Alarm;
+  onRegisterCodeClick?: (code: string) => void;
 }
 
-export const AlarmDetailItem: React.FC<AlarmDetailItemProps> = ({ alarm }) => {
+export const AlarmDetailItem: React.FC<AlarmDetailItemProps> = ({ alarm, onRegisterCodeClick }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +67,13 @@ export const AlarmDetailItem: React.FC<AlarmDetailItemProps> = ({ alarm }) => {
               )}>
                 {alarm.alarmType}
               </span>
-              <h3 className="text-lg font-mono font-bold text-white flex items-center gap-2">
+              <h3 
+                className={cn(
+                  "text-lg font-mono font-bold text-white flex items-center gap-2",
+                  onRegisterCodeClick && "cursor-pointer hover:text-blue-400 transition-colors"
+                )}
+                onClick={() => onRegisterCodeClick?.(alarm.registrationNumber)}
+              >
                 <Hash className="w-4 h-4 text-gray-500" />
                 {alarm.registrationNumber}
               </h3>
